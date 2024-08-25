@@ -1,19 +1,17 @@
-import { IsString, IsInt, MaxLength, MinLength } from 'class-validator';
+import { IsString, IsInt, MaxLength, MinLength, Length, IsPhoneNumber, IsEmail } from 'class-validator';
 
 
 export class CreateUserDto {
-
-  @IsString()
-  @MinLength(4)
-  @MaxLength(20)
+    
+  @Length(2, 20)
   readonly  name:string;
 
 
-  @IsString()
+  @IsPhoneNumber("NG")
   readonly phone:string;
 
 
-  @IsString()
+  @IsEmail()
   readonly email:string;
 
 
