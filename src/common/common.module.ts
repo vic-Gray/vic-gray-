@@ -10,9 +10,7 @@ import { APP_PIPE } from '@nestjs/core';
         whitelist:true,
         forbidNonWhitelisted:true,
         transform:true,
-        transformOptions:{
-          enableImplicitConversion:true
-        }
+      
       })
     }
   ]
