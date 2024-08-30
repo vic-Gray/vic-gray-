@@ -1,10 +1,10 @@
 import { registryDate } from "src/common/inbeded/registryDate";
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ObjectIdColumn, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 
 @Entity()
 export class User {
-   
+   @ObjectIdColumn()
     id:string;
 
     @Column()
@@ -18,8 +18,7 @@ export class User {
 
     @Column()
     password:string;
-     
 
     @Column(() => registryDate, {prefix:false})
-   registeryDAte:registryDate
+   registeryDAte:registryDate;
 }

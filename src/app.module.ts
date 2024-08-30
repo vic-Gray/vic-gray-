@@ -9,10 +9,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [UsersModule, ControllersModule, CommonModule, TypeOrmModule.forRoot({
     type:'mongodb',
-    name:'victorybase',
+    database:'victorybase',
     username:'vic_gray',
     port:27017,
-    host:'localhost'
+    host:'localhost',
+    synchronize:true,
+    logging:true,
+    entities:["dist/domain/**/*.entity.js"],
+    migrations:["dist/database/migrations/*.js"]
   })]
 })
 export class AppModule {}
