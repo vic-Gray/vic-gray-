@@ -1,11 +1,11 @@
 import { registryDate } from "src/common/inbeded/registryDate";
-import { Column, CreateDateColumn, Entity, ObjectIdColumn, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ObjectIdColumn, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
 @Entity()
 export class User {
-   @ObjectIdColumn()
-    id:string;
+   @PrimaryGeneratedColumn()
+    id:number;
 
     @Column()
     name:string;

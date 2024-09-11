@@ -1,18 +1,15 @@
+import { User } from './../users/entities/user.entity';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
-@Module({
+
+
+
+
+
+
+export const DEFULT_SCREEN_SIZE={
+  USER:10,
  
-  providers:[
-    {
-      provide:APP_PIPE,
-      useValue: new ValidationPipe({
-        whitelist:true,
-        forbidNonWhitelisted:true,
-        transform:true,
-      
-      })
-    }
-  ]
-})
-export class CommonModule {}
+} as const satisfies Record<string, number>;
+
