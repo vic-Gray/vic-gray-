@@ -6,6 +6,12 @@ import { ControllersModule } from './controllers/controllers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserService } from './users/users.service';
+import { EventsModule } from './events/events.module';
+import { Event } from './events/entities/event.entity';
+
+
+
 
 @Module({
   imports: [UsersModule, ControllersModule,ConfigModule.forRoot({
@@ -21,11 +27,11 @@ useFactory: async (ConfigService:ConfigService, )=>({
     username:'postgres.hbwebnfupbywebptrvro',
     password:'maxsolderme182005',
     database:"postgres",
-    entities:[User],
+    entities:[User,Event],
    synchronize:true,
 
 })
-  })
+  }), EventsModule, 
 ]
 })
 export class AppModule {}

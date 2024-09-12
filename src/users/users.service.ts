@@ -1,89 +1,89 @@
-import { JwtService } from '@nestjs/jwt';
-
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-import * as bcrypt from "bcrypt"
-import { access } from 'fs';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class UsersService {
+export class UserService {
+  constructor(
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  constructor(@InjectRepository(User)
-  private readonly usersRepository: Repository<User>, private readonly ConfigService: ConfigService, private readonly JwtService: JwtService,
+  async create({ email, phone, password, name }: CreateUserDto) {
+    const userEmail = await this.userRepository.findOneBy({ email });
+    const userPhone = await this.userRepository.findOneBy({ phone });
+    const userName = await this.userRepository.findOneBy({ name });
 
-
-  ) { }
-
-  async create({ email, password, name, phone, }: CreateUserDto) {
-
-    const registerUser = await this.usersRepository.findOneBy({ email })
-    const phoneNumber = await this.usersRepository.findOneBy({ phone })
-
-
-    if (phoneNumber) {
-      throw new UnauthorizedException("sorry this phone number is alrady in use")
+    if (userEmail) {
+      throw new UnauthorizedException('Sorry, this email is in use');
     }
-    if (registerUser) {
-      throw new UnauthorizedException("sorry email is already in use")
+    if (userPhone) {
+      throw new UnauthorizedException('Sorry, this phone number is in use');
+    }
+    if (userName) {
+      throw new UnauthorizedException('Sorry, this username has been taken');
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const hashedPassword = await bcrypt.hash(password, 10)
-
-    const newUser = this.usersRepository.create({
+    const newUser = this.userRepository.create({
       name,
       password: hashedPassword,
       email,
-      phone
-    })
-    await this.usersRepository.save(newUser);
-    return newUser
+      phone,
+    });
+    await this.userRepository.save(newUser);
+
+    return newUser;
   }
 
-  async logInUser({ email, password,phone }: CreateUserDto) {
-    const emailInUse = await this.usersRepository.findOneBy({ email })
-    
-    if (!emailInUse) {
-      throw new UnauthorizedException("sorry this email is incorrect")
+  async logIn({ email, phone,name }: CreateUserDto) {
+    const user = await this.userRepository.findOneBy({ email });
+    const userPassword = await this.userRepository.findOneBy({phone})
+    if (!user) {
+      throw new BadRequestException('Wrong email');
     }
+    if (!userPassword) {
+      throw new BadRequestException('Wrong phone Number');
+    }
+   
+    const userToken = this.jwtService.sign({ id: user.id });
 
-    const isPasswordValid = await bcrypt.compare(password, emailInUse.password)
-    if (!isPasswordValid) {
-      throw new UnauthorizedException("sory this password is incorrect")
-    }
-        const userToken = this.JwtService.sign({User}) 
-        const phoneInUse = this.usersRepository.findOneBy({phone})
-        
-        if (!phoneInUse) {
-           throw new UnauthorizedException("sorry this phone Number is already in use")
+    return {
+      message: 'Logged in successfully',
+      access_Token: userToken,
+     user:{
+      email,
+      phone,
+      name
+     }
+      
+    };
+  }
+  async findUserByName ({name,phone,email}:CreateUserDto){
+      const userProfile = await this.userRepository.findOneBy({name})
+
+      return {
+
+        userProfile:{
+          name,
+          phone:userProfile.phone,
+          email:userProfile.email
         }
-        
-        return {
-          message:"logInsuccesfully",
-          access_token: userToken,
-          user:{
-            id:emailInUse.id,
-            email:emailInUse.email,
-            phone:phoneInUse
-          }
-        }
+      }
   }
 
-  findAll() {
-    return this.usersRepository.find();
+  async findAll() {
+    return await this.userRepository.find();
   }
 
   findOne(id: number) {
-    const user = this.usersRepository.findOneBy({ id });
-    if (!user) {
-      throw new NotFoundException("sorry this user does not exist")
-    }
-    return user;
+    return `This action returns a #${id} user`;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
